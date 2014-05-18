@@ -3,3 +3,4 @@ directly from models.
 """
 from .chartdata import PivotDataPool, DataPool
 from .charts import PivotChart, Chart
+from .rawchartdata import RawDataPool, RawPivotDataPool
