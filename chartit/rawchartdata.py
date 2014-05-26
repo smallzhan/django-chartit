@@ -24,7 +24,10 @@ class RawDataPool(DataPool):
              'terms': [
                'a_field_name', ... ,
                or '(a_fild_name, func)' where the data were the results by func
-               ]
+               ],
+             'names': [
+               'display_name_of_the_field_name', ..., ...
+              ],
             },
             ...
             ]
@@ -72,24 +75,30 @@ class RawDataPool(DataPool):
                 else:
                     d_series[ti]['field_alias'] = \
                         string.capwords(' '.join(ti.split('_')))
+
             if isinstance(source, Model):
                 source = model_source[:]
                 model_source = []
-            for i in range(0, len(terms)):
-                ti = terms[i]
-                if isinstance(terms[i], tuple):
-                    ti, _ = terms[i]
-                sourcelist = zip(*source)
-                data = []
-                for item in sourcelist:
-                    l = {}
-                    for j in range(0, len(terms)):
-                        tj = terms[j]
-                        if isinstance(tj, tuple):
-                            tj, _ = terms[j]
+            data = []
+            sourcelist = zip(*source)
+            for item in sourcelist:
+                l = {}
+                for j in range(0, len(terms)):
+                    tj = terms[j]
+                    if isinstance(tj, basestring):
                         l[tj] = item[j]
-                    data.append(l)
-                d_series[ti]['_data'] = data
+                    elif isinstance(tj, tuple):
+                        tj, _ = terms[j]
+                        l[tj] = item[j]
+                data.append(l)
+
+            for i in range(0, len(terms)):
+                if isinstance(terms[i], basestring):
+                    d_series[terms[i]]['_data'] = data
+                elif isinstance(terms[i], tuple):
+                    ti, _ = terms[i]
+                    d_series[ti]['_data'] = data
+
         return d_series
 
 

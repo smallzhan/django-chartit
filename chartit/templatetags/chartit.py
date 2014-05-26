@@ -1,20 +1,20 @@
 from itertools import izip_longest
 import json
-import datetime
 from django import template
 from django.utils.safestring import mark_safe
+from django.core.serializers.json import DjangoJSONEncoder
 from django.conf import settings
 import posixpath
 
 from ..charts import Chart, PivotChart
 
 
-class DateTimeJSONEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, datetime.datetime):
-            return obj.isoformat()
-        else:
-            return super(DateTimeJSONEncoder, self).default(obj)
+# class DateTimeJSONEncoder(json.JSONEncoder):
+#     def default(self, obj):
+#         if isinstance(obj, datetime.datetime):
+#             return obj.isoformat()
+#         else:
+#             return super(DateTimeJSONEncoder, self).default(obj)
 
 try:
     CHARTIT_JS_REL_PATH = settings.CHARTIT_JS_REL_PATH
@@ -75,8 +75,9 @@ def load_charts(chart_list=None, render_to=''):
         for hco, render_to in izip_longest(chart_list, render_to_list):
             if render_to:
                 hco['chart']['renderTo'] = render_to
-        embed_script = (embed_script % (json.dumps(chart_list, cls=DateTimeJSONEncoder),
+        embed_script = (embed_script % (json.dumps(chart_list,
+                                                   cls=DjangoJSONEncoder),
                                         CHART_LOADER_URL))
     else:
-        embed_script = embed_script %((), CHART_LOADER_URL)
+        embed_script = embed_script % ((), CHART_LOADER_URL)
     return mark_safe(embed_script)
